@@ -1,0 +1,14 @@
+# Only publish dist/ (defined in package.json "files")
+# This file just makes it explicit
+
+benchmark/
+docs/
+src/
+test/
+.github/
+*.md
+!README.md
+Dockerfile*
+tsconfig*.json
+eslint.config.js
+.prettier*

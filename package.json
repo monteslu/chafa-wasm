@@ -1,7 +1,7 @@
 {
-  "name": "chafa-wasm",
-  "version": "0.3.2",
-  "description": "Chafa WebAssembly module to convert images to text",
+  "name": "@monteslu/chafa-wasm",
+  "version": "0.4.0",
+  "description": "Chafa WebAssembly module with SIMD optimizations - converts images to text",
   "keywords": [
     "chafa",
     "images",
@@ -12,19 +12,23 @@
     "unicode",
     "unicode-art",
     "terminal",
-    "terminal-graphics"
+    "terminal-graphics",
+    "simd",
+    "wasm"
   ],
-  "author": "Héctor Molinero Fernández <hector@molinero.dev>",
+  "author": "Luis Montes <monteslu@gmail.com>",
+  "contributors": [
+    "Héctor Molinero Fernández <hector@molinero.dev>"
+  ],
   "license": "LGPL-3.0",
-  "homepage": "https://github.com/hectorm/chafa-wasm",
+  "homepage": "https://github.com/monteslu/chafa-wasm",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hectorm/chafa-wasm.git"
+    "url": "https://github.com/monteslu/chafa-wasm.git"
   },
   "bugs": {
-    "url": "https://github.com/hectorm/chafa-wasm/issues"
+    "url": "https://github.com/monteslu/chafa-wasm/issues"
   },
-  "funding": "https://github.com/hectorm/chafa-wasm?sponsor=1",
   "type": "module",
   "main": "./dist/chafa.js",
   "browser": "./dist/chafa.js",

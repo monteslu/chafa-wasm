@@ -1,0 +1,4 @@
+node_modules/
+test-image-*.png
+output-samples/
+benchmark-results.html

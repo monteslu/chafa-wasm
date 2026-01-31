@@ -1,0 +1,16 @@
+{
+  "name": "chafa-simd-benchmark",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "generate-image": "node generate-test-image.js",
+    "baseline": "node benchmark.js",
+    "simd": "node benchmark-simd.js",
+    "charts": "node generate-charts.js",
+    "all": "npm run generate-image && npm run baseline && npm run charts"
+  },
+  "dependencies": {
+    "chafa-wasm": "^0.3.2",
+    "sharp": "^0.33.0"
+  }
+}

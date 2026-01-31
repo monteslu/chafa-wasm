@@ -224,15 +224,15 @@ RUN emmake ninja -C ./build/ install
 RUN pkg-config --static --exists --print-errors libwebp
 
 # Build Chafa
-ARG CHAFA_TREEISH=1.18.0
-ARG CHAFA_REMOTE=https://github.com/hpjansson/chafa.git
+ARG CHAFA_TREEISH=master
+ARG CHAFA_REMOTE=https://github.com/monteslu/chafa.git
 WORKDIR ${BUILDDIR}/dep/chafa/
 RUN git clone "${CHAFA_REMOTE:?}" ./ \
 	&& git checkout "${CHAFA_TREEISH:?}" \
 	&& git submodule update --init --recursive
 RUN NOCONFIGURE=1 ./autogen.sh
 RUN emconfigure ./configure \
-		CFLAGS="${CFLAGS-} -USMOL_WITH_AVX2 -Wno-error=incompatible-pointer-types" \
+		CFLAGS="${CFLAGS-} -USMOL_WITH_AVX2 -Wno-error=incompatible-pointer-types -DHAVE_WASM_SIMD=1" \
 		--prefix="${SYSROOT:?}" \
 		--libdir="${SYSROOT:?}"/lib \
 		--host="${CHOST:?}" \
