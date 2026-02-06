@@ -1,0 +1,95 @@
+name: Build and Benchmark
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build chafa-wasm
+        run: |
+          docker build -t chafa-wasm .
+          docker create --name extract chafa-wasm
+          docker cp extract:/chafa.js ./dist/
+          docker cp extract:/chafa.wasm ./dist/
+          docker rm extract
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: Install upstream for comparison
+        run: |
+          mkdir -p /tmp/upstream
+          cd /tmp/upstream
+          npm init -y
+          npm install chafa-wasm
+      
+      - name: Run Benchmarks
+        run: |
+          node --experimental-vm-modules << 'BENCH'
+          import { performance } from 'perf_hooks';
+          
+          const upstream = await (await import('/tmp/upstream/node_modules/chafa-wasm/dist/chafa.js')).default();
+          const ours = await (await import('./dist/chafa.js')).default();
+          
+          function createImage(w, h) {
+            const data = new Uint8ClampedArray(w * h * 4);
+            for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+              const i = (y * w + x) * 4;
+              data[i] = (x*255/w)|0; data[i+1] = (y*255/h)|0; data[i+2] = 128; data[i+3] = 255;
+            }
+            return { width: w, height: h, data };
+          }
+          
+          const imageToAnsi = (c, img, cfg) => new Promise((res, rej) => 
+            c.imageToAnsi(img, cfg, (e, r) => e ? rej(e) : res(r)));
+          
+          async function bench(c, img, cfg, n = 50) {
+            for (let i = 0; i < 10; i++) await imageToAnsi(c, img, cfg);
+            const t = [];
+            for (let i = 0; i < n; i++) { 
+              const s = performance.now(); 
+              await imageToAnsi(c, img, cfg); 
+              t.push(performance.now() - s); 
+            }
+            t.sort((a,b) => a-b);
+            return t[Math.floor(n/2)];
+          }
+          
+          console.log('## Benchmark Results\n');
+          console.log('| Test | Upstream | Optimized | Speedup |');
+          console.log('|------|----------|-----------|---------|');
+          
+          const tests = [
+            { name: '1:1 ratio', w: 640, h: 192 },
+            { name: '800x600', w: 800, h: 600 },
+            { name: 'Large output', w: 800, h: 600, ow: 160, oh: 48 },
+          ];
+          
+          for (const t of tests) {
+            const img = createImage(t.w, t.h);
+            const cfg = { width: t.ow || 80, height: t.oh || 24 };
+            const u = await bench(upstream, img, cfg);
+            const o = await bench(ours, img, cfg);
+            const speedup = ((u - o) / u * 100).toFixed(1);
+            console.log(\`| \${t.name} | \${u.toFixed(1)}ms | \${o.toFixed(1)}ms | **\${speedup}%** |\`);
+          }
+          BENCH
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chafa-wasm-dist
+          path: dist/
