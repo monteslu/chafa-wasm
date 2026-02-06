@@ -20,7 +20,7 @@ jobs:
         run: |
           docker build -t chafa-wasm .
           mkdir -p dist
-          docker create --name extract chafa-wasm
+          docker create --name extract chafa-wasm /bin/true
           docker cp extract:/chafa.js ./dist/
           docker cp extract:/chafa.wasm ./dist/
           docker rm extract
@@ -85,7 +85,7 @@ jobs:
             const u = await bench(upstream, img, cfg);
             const o = await bench(ours, img, cfg);
             const speedup = ((u - o) / u * 100).toFixed(1);
-            console.log(\`| \${t.name} | \${u.toFixed(1)}ms | \${o.toFixed(1)}ms | **\${speedup}%** |\`);
+            console.log(`| ${t.name} | ${u.toFixed(1)}ms | ${o.toFixed(1)}ms | **${speedup}%** |`);
           }
           BENCH
       
