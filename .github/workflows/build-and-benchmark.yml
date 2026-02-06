@@ -19,6 +19,7 @@ jobs:
       - name: Build chafa-wasm
         run: |
           docker build -t chafa-wasm .
+          mkdir -p dist
           docker create --name extract chafa-wasm
           docker cp extract:/chafa.js ./dist/
           docker cp extract:/chafa.wasm ./dist/
